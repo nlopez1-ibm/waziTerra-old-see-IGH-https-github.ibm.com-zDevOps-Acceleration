@@ -56,3 +56,45 @@ echo If you have trouble accessing the system try a re-IPL
 echo Your new VSI(${local.BASENAME}-vsi1) IP is ${ibm_is_floating_ip.fip1.address}
  
 :bye
+
+
+REM notes on port an app's runtime for test (source/load/jcl... ) 
+1 - run nlopez.dat.jcl(dump) job to dss app src files and convert into xmit on uss 
+2 - sftp on src lpar and 'get' the xmit file  (can be scripted)
+3 - sftp on target and 'put' the xmit file on uss 
+4 - run ibmuser.jcl(recv) to recieve the xmit file and run dss restore !!! IT WORKS 
+
+
+
+sftp 
+ftp xmit to local open zos.dev 2021
+sftp  -P 2022 nlopez@zos.dev
+get ...
+
+sftp  ibmuser@mywazi 
+put ...
+
+
+REM CICS 
+use cicsextr on src 
+
+replace default cics stc with custom 
+
+use IBMUSER.CB12V51.LOAD as the rpl load on wazi 
+cp src rpl to target 
+
+NOTE IBMUSER.JCL PDS is predefined 
+
+ssh ibmuser@mywazi ". ./.profile; opercmd c cicsts56 "
+ssh ibmuser@mywazi ". ./.profile; opercmd s cicsts56 "
+
+
+
+noise 
+
+scp -P 2022  nlopez@zos.dev:/u/nlopez/.profile  /"\\'nlopez.wazi.dump.libs'"
+cp  -F bin  "//'"$2"'" $zTar
+ssh -p 2022 nlopez@zos.dev
+
+scp -P 2022  nlopez@zos.dev:~/tmp/mylibs.dump  ./mylibs.dump
+scp   ./mylibs.dump  ibmuser@mywazi:~/mylibs.dump
