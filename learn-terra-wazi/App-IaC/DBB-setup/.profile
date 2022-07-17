@@ -8,8 +8,11 @@ export GROOVY_CONF="$GROOVY_HOME/conf/groovy-starter.conf"
 export GIT_HOME=/rsusr/ported
 export JAVA_HOME=/usr/lpp/java/J8.0_64
 export PATH=$GIT_HOME/bin:$GROOVY_HOME/bin:$DBB_HOME/bin:/bin:/usr/sbin:$PATH
-export PATH=$PATH:/usr/lpp/IBM/zoautil/bin
 export CLASSPATH=/usr/lpp/IBM/dbb/lib/*:$DBB_HOME/groovy-2.4.12/lib/*:/usr/include/java_classes/isfjcall.jar:$CLASSPATH
 export LIBPATH=/usr/lpp/IBM/dbb/lib:/usr/lib/java_runtime64:/lib:/usr/lib:.:$LIBPATH 
 export _BPXK_AUTOCVT=ON
 export _CEE_RUNOPTS="FILETAG(AUTOCVT,AUTOTAG) POSIX(ON)"
+
+export ZOAU_HOME=/usr/lpp/IBM/zoautil
+export PATH=$PATH:/usr/lpp/IBM/zoautil/bin
+export LIBPATH=$LIBPATH:/usr/lpp/IBM/zoautil/lib

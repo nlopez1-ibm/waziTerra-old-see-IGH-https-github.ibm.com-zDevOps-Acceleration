@@ -1,20 +1,20 @@
-//*********************************************************************
-//* this is the default cics 56 stc in waszi aaS Juune 2022 ver                                                                   *
-//* an ansible scriupt can be create to update the RPL                                                                            *
-//* but this example just replace the proc with the RPL  load for                                                                                *
-//*  your needs   See the DFHRPL DD for more info       
-//* note you postinit script to restart cics
+//***********************************************************
+//* This is the default CICS56 stc proc for Waszi aaS - June 2022 ver           
+//* An ansible script can be created to update the RPL.                         
+//* This example lets you add your own application RPL Libs 
+//* for testing.  See the DFHRPL DD below for more info       
+//* NOTE: the postinit script will restart cics using zoua tools 
 //*                     
-//*********************************************************************
+//***********************************************************
 //DFHSTART PROC START='AUTO',
 // INDEX1='CICSTS56',
 // INDEX2='CICSTS.V5R6M0.CICS',
 // INDEX3='CICSTS.V5R6M0.CPSM',
 // INDEX4='CICSTS.V5R6M0',
-// ACTIVATE=SDFHLIC,                                     @D77578A
+// ACTIVATE=SDFHLIC,                                    
 // REGNAM='',
 // REG=0M,
-// MEMLIM='10G',                                        @R113443C
+// MEMLIM='10G',                                         
 // DUMPTR='YES',
 // RUNCICS='YES',
 // OUTC='*',
@@ -45,15 +45,11 @@
 //SYSIN    DD DISP=SHR,
 // DSN=&INDEX1..SYSIN(DFHRC&RUNCICS)
 //*
-//* SET THE RETURN CODE TO CONTROL THE DUMP AND TRACE
-//* ANALYSIS STEPS
 //DTCNTL   EXEC PGM=IDCAMS,REGION=1M
 //SYSPRINT DD SYSOUT=*
 //SYSIN    DD DISP=SHR,
 // DSN=&INDEX1..SYSIN(DFHRC&DUMPTR)
 //*
-//***********************************************************
-//*******************  EXECUTE CICS  ************************
 //***********************************************************
 //CICS    EXEC PGM=DFHSIP,REGION=&REG,TIME=1440,
 // MEMLIMIT=&MEMLIM,                                         @L6A
@@ -61,21 +57,12 @@
 // PARM=('SYSIN','START=&START','CICSSVC=&CICSSVC',
 // 'USSHOME=&USSHOME')
 //*
-//*            THE CAVM DATASETS - XRF
-//*
-//* THE "FILEA" APPLICATIONS SAMPLE VSAM FILE
-//* (THE FILEA DD STATEMENT BELOW WILL
-//* OVERRIDE THE CSD DEFINITION IN GROUP DFHMROFD)
 //FILEA    DD DISP=SHR,
 // DSN=&INDEX1..CICS&REGNAM..FILEA
 //*
 //SYSIN    DD DISP=SHR,
 // DSN=&INDEX1..SYSIN(DFH$SIP&SIP)
 //DFHCMACD DD DSN=CICSTS56.DFHCMACD,DISP=SHR
-//***********************************************************
-//*        THE CICS STEPLIB CONCATENATION
-//*        If Language Environment is required, the SCEERUN2
-//*        and SCEERUN datasets are needed in STEPLIB or LNKLST
 //***********************************************************
 //STEPLIB  DD DSN=&INDEX3..SEYUAUTH,DISP=SHR           @D73969A
 //         DD DSN=&INDEX2..SDFHAUTH,DISP=SHR
@@ -84,9 +71,6 @@
 //*        DD DSN=CEE.SCEERUN,DISP=SHR
 //***********************************************************
 //*        THE CICS LIBRARY (DFHRPL) CONCATENATION
-//*        If Language Environment is required, the SCEECICS,
-//*        SCEERUN2 and SCEERUN datasets are needed in DFHRPL.
-//*
 //*        If you are using MQ as the transport mechanism
 //*        for SIBus uncomment the DD statements for the
 //*        SCSQLOAD, SCSQANLE, SCSQCICS and SCSQAUTH datasets.
@@ -95,14 +79,14 @@
 //         DD DSN=DB2.V12R1M0.SDSNLOAD,DISP=SHR
 //         DD DSN=DB2.V12R1M0.SDSNLOD2,DISP=SHR
 //*  End Ansible DB2 Block Insert
-//DFHRPL   DD DSN=&INDEX3..SEYULOAD,DISP=SHR           @D73969A
+//DFHRPL   DD DSN=&INDEX3..SEYULOAD,DISP=SHR       
 //         DD DSN=&INDEX2..SDFHLOAD,DISP=SHR
 //****
 //****
-//*  NLOPEZ -myApp SANDBOX adding my RPL Load for  testing 
-//         DD DISP=SHR,DSN=ZDEV.FEATURE.CICSLOAD    user build load
-//         DD DISP=SHR,DSN=ZDEV.DEVLOPE.CICSLOAD    CI team build load 
-//         DD DISP=SHR,DSN=ZDEV.MAIN.CICSLOAD       existing prod load 
+//*  NLOPEZ -myApp RPLs for testing  Dev and Prod loadlibs 
+//         DD DISP=SHR,DSN=ZDEV.FEATURE.CICSLOAD  user load
+//         DD DISP=SHR,DSN=ZDEV.DEVELOP.CICSLOAD  team load 
+//         DD DISP=SHR,DSN=ZDEV.MAIN.CICSLOAD     prod load 
 //*   
 //****
 //****
