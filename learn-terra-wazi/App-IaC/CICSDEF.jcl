@@ -1,13 +1,12 @@
-//NLOPEZC  JOB 'ACCT#',MSGCLASS=H                              
-//* Use this job to add your extracted CICS app definitions to
+//IBMUSERC  JOB 'ACCT#',MSGCLASS=H                              
+//* This job adds your extracted Dev CICS app definitions to
 //* your new zOS/CICS instance
-//* Run he CICS extract job first on your dev system 
-//* Use your Dev regions CICS steplib and CSD  
+//* Requires that you run the APPDUMP job on your dev system first 
+//* Steplib and CSD are based on Wazi aaS zOS image of june 2022
 //*
 //TRN    EXEC PGM=DFHCSDUP,REGION=0M,                              
-//             PARM='CSD(READWRITE),PAGESIZE(60),NOCOMPAT'         
+//       PARM='CSD(READWRITE),PAGESIZE(60),NOCOMPAT'         
 //STEPLIB  DD DISP=SHR,DSN=CICSTS.V5R6M0.CICS.SDFHLOAD             
 //DFHCSD   DD DISP=SHR,DSN=CICSTS56.DFHCSD                         
-//OUTDD    DD  SYSOUT=*                                            
-//SYSPRINT DD  SYSOUT=*                                            
+//SYSPRINT DD SYSOUT=*                                            
 //SYSIN    DD DISP=SHR,DSN=IBMUSER.JCL(CICSDEF)                    

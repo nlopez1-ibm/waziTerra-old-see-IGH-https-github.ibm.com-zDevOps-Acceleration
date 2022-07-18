@@ -1,4 +1,4 @@
 !echo Running SFTP to download your XMIT and CNTL files into folder App-IaC/ ...
-get *.xmit App-IaC/
-get *.cntl App-IaC/
+get App_IaC/*.xmit App-IaC/
+get App_IaC/*.cntl App-IaC/
 bye

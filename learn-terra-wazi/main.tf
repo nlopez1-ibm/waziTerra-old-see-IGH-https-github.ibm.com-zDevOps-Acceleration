@@ -88,11 +88,15 @@ resource ibm_is_security_group_rule all_out {
 output "Info" {
   value = <<EOT
   
-    Your new VSI(${local.BASENAME}-vsi1) IP is ${ibm_is_floating_ip.fip1.address}. The IPL started and takes about 3 mins.
+    Your new VSI(${local.BASENAME}-vsi1) IP is ${ibm_is_floating_ip.fip1.address}. The IPL has started and takes about 3 mins.
     From your cloud UI, use the VSI action/serial term to view the MCS and IPL state.
     Run "terraform show" to redisplay these instructions.
 
-    Cut/paste this windows cmd  to finalize the VSI local setup:
-      postinit  ${ibm_is_floating_ip.fip1.address}  
+    A special DEMO script (postinit) has been created to initialize a dev runtime on the new instance.
+    
+    The App Config script can be run from you terminal using this command"  
+       call App-Iac/postinit  ${ibm_is_floating_ip.fip1.address}  
+
+    The README.md file has more details.        
   EOT
   }     
