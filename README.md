@@ -1,5 +1,5 @@
 # Learn Terraform for Wazi aaS basics - by NLopez 
-This repo has 2 folders to help you learn how to create a new Wazi aaS instance using terraform script and your IBM Cloud account. 
+This repo has 2 folders to help you learn how to create a new Wazi aaS instance using terraform scripts and your IBM Cloud account. 
 
 The folders are:
 - ``` learn-terra-basic ``` that provides a highlevel overview of the scripting lanugae using local resources.  
@@ -33,9 +33,9 @@ For more on IBM's Terraform plugin, scroll to the "VPC infrastructure" topic in:
 ## The 'learn-terra-wazi' folder   
 The main.tf terraform script is derived from [IBM Sample terraform repo](https://cloud.ibm.com/docs/ibm-cloud-provider-for-terraform?topic=ibm-cloud-provider-for-terraform-sample_vpc_config)
 
-This sample uses a pre-defined local ssh-key and an IBM Cloud account apikey with access to create a Wazi aaS image. 
+It creates a VPC/VSI instance using a pre-defined local ssh-key and an IBM Cloud account apikey with access to the new 'Wazi aaS' image. 
 
-In windows, run the ssh-keygen cmd and add your public key to your cloud acct. Then [access your cloud acct's apikey](https://www.ibm.com/docs/en/app-connect/containers_cd?topic=servers-creating-cloud-api-key) and add it as a local environment varaiable using SETX IC_API_Key=<apikey> (or add the key in a script - but thats not recommended)
+In windows, run the ssh-keygen cmd and [add your public key to your cloud acct](https://cloud.ibm.com/docs/ssh-keys?topic=ssh-keys-adding-an-ssh-key). Then [access your cloud acct's apikey](https://www.ibm.com/docs/en/app-connect/containers_cd?topic=servers-creating-cloud-api-key) and add it as a local environment varaiable using SETX IC_API_Key=<apikey> (or add the key in a script - but thats not recommended)
 
 
 Open a term and run terraform cmds under this folder using the standard flow:
@@ -48,7 +48,7 @@ Open a term and run terraform cmds under this folder using the standard flow:
 > Some tweaks made to the IBM sample
 + Due to permission restrictions in the demo Cloud acct, a few extra vars were added  like; resource group, image name and a pre-existing ssh key plus a few more.  
 + Most resource blocks have been updated to include the resource group id.
-+ The IBM sample does not adhere to normal terraform file naming conventions. For example it calls the main script vpc.tf.  I changed it to main.tf.  But terraform really doesnt care what you call the file as long as it ends in .tf 
++ The IBM sample does not adhere to normal terraform file naming conventions. For example it calls the main script `vpc.tf`.  I changed it to `main.tf`.  But terraform really doesnt care what you call the file as long as it ends in .tf 
 
 [**FYI: This is a link to IBM terraform plugin Doc](https://cloud.ibm.com/docs/ibm-cloud-provider-for-terraform?topic=ibm-cloud-provider-for-terraform-provider-template#code-snippets)
 
@@ -69,7 +69,7 @@ This process requires some planning and setup before starting your new instance.
 
  - Review the App-IaC/CICSTS56.JCL.  This jcl is a copy of the Wazi aaS zOS JCL (CICS v56 STC) as of June 2022.  If you are testing a CICS application then, in addition to extracting CICS defintions, you will need to add your application's RPL libs and make sure to included them in the APPDUMP job. 
 
-Once the pre-setup steps are compelete, you can run the terraform init,plan and apply. When the VSI created, run the App-IaC/postinit.bat script found in this folder to replicate you application runtime environment for DBB builds and unit testing. 
+Once the pre-setup steps are compelete, you can run the terraform init, plan and apply steps. When the VSI is created, run the App-IaC/postinit.bat script found in this folder to replicate your application's runtime environment for DBB builds and unit testing. 
 
 
  
