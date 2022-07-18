@@ -88,7 +88,7 @@ resource ibm_is_security_group_rule all_out {
 output "Info" {
   value = <<EOT
   
-    Your new VSI(${local.BASENAME}-vsi1) IP is ${ibm_is_floating_ip.fip1.address}. The IPL has started and takes about 3 mins.
+    Your new VSI(${local.BASENAME}-vsi1) IP is ${ibm_is_floating_ip.fip1.address}. The IPL has started and takes about 5 mins.
     From your cloud UI, use the VSI action/serial term to view the MCS and IPL state.
     Run "terraform show" to redisplay these instructions.
 
