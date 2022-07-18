@@ -82,14 +82,14 @@ pause
 
 :Restore_App_Runtime
 set initAppRuntime=y
-set /p initAppRuntime="Press enter replicate your App Runtime on %mywazi%. Or enter any char to skip  --> "	
+set /p initAppRuntime="Press enter to replicate your App Runtime on %mywazi%. Or enter any char to skip  --> "	
 if  %initAppRuntime% NEQ y goto exitok
 
 echo WARNING: Did you run the App-IaC/APPDUMP.jcl on DEV yet?  Press enter when you have.  
 pause 
 
 echo Restoring your App Runtime from Dev to the new instance  ... 
-set /p devhost="Enter your Dev RACF id and host name like --> %devhost%"
+set /p devhost="Enter your Dev RACF UserID and host name like --> %devhost%"
 
 sftp  -P 2022 -b App-IaC/sget.script %devhost% 
 IF EXIST App-IaC/applibs.xmit GOTO :Restore_App
@@ -110,13 +110,14 @@ sftp -b App-IaC/sput.script ibmuser@%mywazi%
 
 REM need to move the jcl to a pds becuase SCP adds CR to each line '0d'x 
 scp -r App-IaC/APPREST.jcl  ibmuser@%mywazi%:apprest.jcl
+
+REM CL: ERR ???
 ssh ibmuser@%mywazi% cp -F crnl -S d=.jcl apprest.jcl "//jcl"  
 ssh ibmuser@%mywazi% submit "//'ibmuser.jcl(apprest)'" 
 
-echo Job "IBMUSER.JCL(APPREST) submitted"
 echo Logon to your new zOS instance and double check the JES outout for the above job to make sure it worked.  
 echo The Job name starts with IBMUSER. 
-echo First time login may require yout to reset your IBMUSER password default is SYS1. 
+echo First time login may require you to reset your IBMUSER password default is SYS1. 
 echo If the job failed, edit /u/ibmuser/APPREST.jcl on %mywazi% and rerun. 
 pause 
 
@@ -144,7 +145,7 @@ REM the cntl files was transmitted with xmit if it was created.
 ssh ibmuser@%mywazi% cp -S d=.cntl CICSDEF.cntl "//jcl"
 scp -r App-IaC/CICSDEF.jcl  ibmuser@%mywazi%:CICSDEF.jcl
 ssh ibmuser@%mywazi% "submit  CICSDEF.jcl"
-echo Job CICSDEF submitted and will apply your extracted Dev CICS defintions.  
+echo Job "/u/ibmuser/CICSDEF.jcl" submitted and will apply your extracted Dev CICS defintions.  
 REM Wait with a local ping 
 ping localhost -n 3 > NUL
 pause   
