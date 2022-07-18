@@ -15,7 +15,7 @@ This folder has a few sample *.tf files.  They  provide basic getting started ti
 - Add the executable to the path using (Windows) ``` SETX PATH ...```
 - A nice to have is the vsCode extension https://marketplace.visualstudio.com/items?itemName=HashiCorp.terraformthe 
 
->TIP: In vsCode, open a terminal to run terraform cli by right clicking the project folder and selecting "Open in Intergrated terminal" where you can enter 'terraform init' etc...
+>TIP: In vsCode, open a terminal to run terraform cli by right clicking the project folder and selecting "Open in Integrated terminal" where you can enter 'terraform init' etc...
 
 ## After the install
 Use the basics project or create your own with any name to build your .tf scripts. From the cli, run terraform cmds like  -  'terraform init', plan, apply, show, destroy  
@@ -26,16 +26,16 @@ Terra tracks diff's between applys to keep resources up to date.
 
 To start learning, open the sample main.tf script and follow the notes. 
 
-For more on IBM's Terraform plugin, see the VPC infrastructure topic in:
-   IBM Cloud plugin is https://registry.terraform.io/providers/IBM-Cloud/ibm/latest/docs
+For more on IBM's Terraform plugin, scroll to the "VPC infrastructure" topic in:
+   https://registry.terraform.io/providers/IBM-Cloud/ibm/latest/docs
 
 
 ## The 'learn-terra-wazi' folder   
 The main.tf terraform script is derived from [IBM Sample terraform repo](https://cloud.ibm.com/docs/ibm-cloud-provider-for-terraform?topic=ibm-cloud-provider-for-terraform-sample_vpc_config)
 
-This sample uses a pre-defined local ssh-key and an IBM Cloud account apikey with access to create a Wazi aaS VSI. 
+This sample uses a pre-defined local ssh-key and an IBM Cloud account apikey with access to create a Wazi aaS image. 
 
-In windows, run the ssh-keygen cmd and add your public key to your clound acct. Then access your clound acct apikey and add it as a local environment varaiable using SETX IC_API_Key=<apikey> (or add the key in a script - but thats not recommended)
+In windows, run the ssh-keygen cmd and add your public key to your cloud acct. Then [access your cloud acct's apikey](https://www.ibm.com/docs/en/app-connect/containers_cd?topic=servers-creating-cloud-api-key) and add it as a local environment varaiable using SETX IC_API_Key=<apikey> (or add the key in a script - but thats not recommended)
 
 
 Open a term and run terraform cmds under this folder using the standard flow:
@@ -53,15 +53,14 @@ Open a term and run terraform cmds under this folder using the standard flow:
 [**FYI: This is a link to IBM terraform plugin Doc](https://cloud.ibm.com/docs/ibm-cloud-provider-for-terraform?topic=ibm-cloud-provider-for-terraform-provider-template#code-snippets)
 
 ## Tech Notes 
-The experimental Wazi image (as of June 2022) is configured with Git, DBB, RSE and zoSMF. 
+The experimental Wazi image (as of June 2022) is configured with TN3270, SSH, Git, DBB, RSE, RSEAPI, z/OSMF, GO and BASH. Zowe and Open Editor for VScode are supported.
 
-After the IPL you can setup IDz, Zowe and 3270 access.  SSH into USS is avialable after the IPL and uses the local SSH key that was 'applied' during the VSI creation. 
+After the IPL you can manually setup IDz, Zowe and 3270 access.  SSH into USS uses the local SSH key used during the VSI creation. 
 
-### How to replicate an Application Runtime  on a new zOS image
-This folder also includes a sample script to demostrate how to build a working application runtime environment after the first IPL. It uses standard IBM utilities to 'copy' development and production runtime libraries like joblibs, CICS RPL libs, CNTL, JCL...
+### How to replicate an Application Runtime  on a new zOS image (experimental)
+This folder also includes a sample IaC script (postinit.bat) to demostrate how to replicate an application's runtime environment. The script uses standard IBM utilities to create a portable runtime image made up of joblibs, CICS RPL libs, CNTL, JCL...
 
-It then transports the images to the new zOS instance and restores the libraries.  
-It also capture a sample CICS application's defintions.  
+It then transports the image to the new zOS instance and restores both the batch and CICS runtimes. It also helps set up local CERT for 3270 access and other configurations. 
 
 ![From Dev to VSI Runtime Replication](postinit-v1.png)
 
@@ -88,6 +87,13 @@ If you have trouble accessing the system try a re-IPL.
 - **RSE=8137**
 - **RSEAPI=8195**
 - **zOSMF=10443** 
+
+**DBB**
+Both git and DBB and zappbuild are preinstalled. Build.groovy can be found in /u/ibmuser/waziDBB/dbb-zappbuild.  The DBB Daemon is not needed as JAVA performance is not an issue. 
+
+Pipelines can be configured with the instanances IBMUSER, its pre-generate public ssh key and IP for impact builds.  
+
+The 'Go' interpreter is also available to support native GitLab runners (not tested). 
 
 **Example Wazi Topology**
 ![Diagram of deployment](vpc-gen2-example.png)
