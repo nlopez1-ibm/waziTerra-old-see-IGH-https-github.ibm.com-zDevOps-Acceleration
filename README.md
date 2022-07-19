@@ -87,6 +87,7 @@ If you have trouble accessing the system try a re-IPL.
 - **RSE=8137**
 - **RSEAPI=8195**
 - **zOSMF=10443** 
+- **CICS REGION CICSTS56, CMCI=8154**
 
 **DBB**
 Both git and DBB and zappbuild are preinstalled. Build.groovy can be found in /u/ibmuser/waziDBB/dbb-zappbuild.  The DBB Daemon is not needed as JAVA performance is not an issue. 
