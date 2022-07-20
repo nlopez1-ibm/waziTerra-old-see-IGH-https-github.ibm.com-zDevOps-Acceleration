@@ -1,0 +1,4 @@
+!echo Running SFTP to upload your XMIT and CNTL files into /u/ibmuser   ...
+put App-IaC/App-Runtime-Images/*.xmit 
+put App-IaC/App-Runtime-Images/*.cntl 
+bye

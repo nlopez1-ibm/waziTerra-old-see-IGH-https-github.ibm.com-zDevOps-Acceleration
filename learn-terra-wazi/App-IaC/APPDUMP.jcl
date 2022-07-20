@@ -1,33 +1,34 @@
 //NLOPEZR JOB 'ACCT#',MSGCLASS=H,REGION=0M,MSGLEVEL=(1,1)
 //*
-//* Manually edit this jcl and run it on your dev lpar before
-//* creating your new zOS instance.  It creates copies of your
-//* current application and prod runtime libs.  The copies are
-//* transported to you new zOS instance where you can build
-//* and test your changes in isoldation. This sample also shows
-//* how to extract CICS App Defintions.
+//*       Application build and runtime copy job 
+//* This job copies an App's build and runtime configuration on Dev   
+//* to recreate a similar configuration on any new zOS instance. 
+//* 
+//* This captures an image of an App config in 3 files: 
+//*  1: APPLIBS - a copy of an application's dev libs  
+//*  2: SYSLIBS - a copy of an app's prod libs like joblibs, cntl ...
+//*  3: CICSDEF - a CICS definition extract by App Group
 //*
-//* Review/update the Jobcard, space parms, HLQ and all CNTLs.
-//* Include loadlib(s) needed for static linking and dynamic calls.
-//* CICS RPL libs must be added to the CICSTS56.JCL in this folder.
-//* Dont change DSNs as they are referred to by other processes.
-//*
-//* This job creates 3 file type
-//*  + APPLIBS has a copy of your application libs
-//*  + SYSLIBS has a copy of other libs like prod joblibs, cntl ...
-//*  + CICS Defintions (for one CICS region)
-//* During the initialization of your new zOS instance these
-//* files are used to replicate your dev environment using the
-//* "/App-IaC/postinit.bat" script during the terraform apply process.
-//*
-//* WIP: You can rerun this job and its scripts manually to refresh
-//* these libs after the intiial IPL.  Test DATA is not included.
+//* Change and save in this folder the following: 
+//*  + Jobcard, space parms and HLQ. 
+//*  + The first DUMP control card to include your App's PDSs   
+//*    like loadlib, jcl, CNTL... whatever you need on the new env.
+//*  + The second DUMP card to include production libs 
+//*    like those used to access static and dynamic modules.  
+//*  + The 'CICSEXTR' step's card to optionally include your 
+//*    CICS defintions by App GROUP name. If your not testing 
+//*    a CICS app, you can remove this step and the COPYDEFS step.
+//* 
+//* NOTE: If testing a CICS app, RPL libs must be added to 
+//* the sample CICSTS56.jcl file in this folder. It will be used  
+//* to start a CICS region in the new zOS.
+//****   
 //*
 //* Symbolics for dev lpar. Chg HOME dir and HLQ to match your acct.
-//USSHOME SET HOME='/u/nlopez/App_IaC/'
+//USSHOME SET HOME='/u/nlopez/App-IaC/'
 //HLQ     SET HLQ='NLOPEZ'
 //*
-//* Remove any old files
+//* Step to remove old files
 //DELXMIT  EXEC PGM=BPXBATCH,PARM='sh mkdir -p &HOME ; rm &HOME/*'
 //STDOUT   DD  SYSOUT=*
 //STDERR   DD  SYSOUT=*
@@ -38,7 +39,7 @@
 //DELSYS   DD  DISP=(MOD,DELETE),DSN=&HLQ..WAZI.DUMP.SYSLIBS,
 // SPACE=(TRK,(1,0)),UNIT=SYSDA
 //*
-//** Run the dump of user & app dev libs (joblib, cntl ...)
+//** Dump build and runtime libs 
 //COPY     EXEC PGM=ADRDSSU
 //APPLIBS  DD  DISP=(NEW,CATLG),DSN=&HLQ..WAZI.DUMP.APPLIBS,
 // DCB=(RECFM=U,DSORG=PS,LRECL=0,BLKSIZE=0),SPACE=(CYL,(1,25)),
@@ -49,8 +50,8 @@
 //SYSPRINT DD SYSOUT=*
 //*
 //* Add your App and/or personal PDSs in the first INCLUDE block..
-//* The second DUMP task can include any production or suppporting
-//* PDSs. Review the JCL space parm for both DD's
+//* The second DUMP task can include any production or other 
+//* suppporting PDSs. Review the JCL space parm for both OUTDD's
 //SYSIN    DD *
  DUMP DATASET (INCLUDE( -
                  ZDEV.FEATURE.**, -
@@ -85,11 +86,11 @@
  XMIT SOW1.IBMUSER FILE(ISYSLIBS) OUTFILE(OSYSLIBS)
 /*
 //* This step extracts your application CICS defintions.
-//* Ensure the CICS steplib and CSD DSNs mathc your CICS region.
+//* Ensure the CICS steplib and CSD DSNs match your CICS region.
 //* Also add your CICS application Group name for the extract.
 //*
-//* If your not testing a CICS app, delete these following step
-//APPEXTR  EXEC PGM=DFHCSDUP,REGION=0M,
+//* If your not testing a CICS app, delete these following steps
+//CICSEXTR EXEC PGM=DFHCSDUP,REGION=0M,
 //         PARM='CSD(READWRITE),PAGESIZE(60),NOCOMPAT'
 //STEPLIB  DD DSN=DFH560.CICS.SDFHLOAD,DISP=SHR
 //DFHCSD   DD DISP=SHR,DSN=DFH560.CICS.DFHCSD
@@ -103,7 +104,7 @@
  EXTRACT GROUP(DAT) OBJECTS USERPROGRAM(DFH0CBDC)
 /*
 //* copy the cics def file to USS for transport
-//CPDEFS   EXEC PGM=BPXBATCH,
+//COPYDEFS EXEC PGM=BPXBATCH,
 // PARM=('sh cp //"''&HLQ..WAZI.CICS.APPDEFS''" &HOME/CICSDEF.cntl')
 //STDOUT   DD  SYSOUT=*
 //STDERR   DD  SYSOUT=*
