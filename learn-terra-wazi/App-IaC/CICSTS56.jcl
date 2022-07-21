@@ -1,9 +1,7 @@
 //***********************************************************
-//* This is the default CICS56 stc proc for Waszi aaS - June 2022 ver           
-//* An ansible script can be created to update the RPL.                         
-//* This example lets you add your own application RPL Libs 
-//* for testing.  See the DFHRPL DD below for more info       
-//* NOTE: the postinit script will restart cics using zoua tools 
+//* This is the default CICS56 stc proc for Waszi aaS - June 2022 ver          
+//* Add your application's  RPL Libs - see the DFHRPL DD below  
+//* NOTE: the postinit script will recycel cics using ZOAU tools 
 //*                     
 //***********************************************************
 //DFHSTART PROC START='AUTO',

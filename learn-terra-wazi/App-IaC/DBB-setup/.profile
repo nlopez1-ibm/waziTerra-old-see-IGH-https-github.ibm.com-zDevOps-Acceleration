@@ -1,5 +1,4 @@
 #!/bin/sh
-echo 'waziDBB .profile started (DBB110) nonSrvr mode'
 PS1='$LOGNAME':'$PWD':' >'
 export DBB_HOME=/u/ibmuser/waziDBB
 export DBB_CONF=$DBB_HOME/conf
@@ -16,3 +15,4 @@ export _CEE_RUNOPTS="FILETAG(AUTOCVT,AUTOTAG) POSIX(ON)"
 export ZOAU_HOME=/usr/lpp/IBM/zoautil
 export PATH=$PATH:/usr/lpp/IBM/zoautil/bin
 export LIBPATH=$LIBPATH:/usr/lpp/IBM/zoautil/lib
+echo '.profile started DBBHOME=$DBB_HOME  ZAPPBUILD=$DBB_HOME/dbb-zappbuild '

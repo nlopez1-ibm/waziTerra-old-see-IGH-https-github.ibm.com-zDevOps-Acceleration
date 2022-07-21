@@ -1,4 +1,0 @@
-!echo Running SFTP to upload your APPDUMP.jcl file into your  USS Home 
-help
-put App-IaC/APPDUMP.jcl
-bye

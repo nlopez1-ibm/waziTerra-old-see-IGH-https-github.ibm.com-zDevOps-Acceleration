@@ -52,6 +52,7 @@
 //* Add your App and/or personal PDSs in the first INCLUDE block..
 //* The second DUMP task can include any production or other 
 //* suppporting PDSs. Review the JCL space parm for both OUTDD's
+//* added a large sys1 lib for testing 
 //SYSIN    DD *
  DUMP DATASET (INCLUDE( -
                  ZDEV.FEATURE.**, -
@@ -64,7 +65,8 @@
 
   DUMP DATASET (INCLUDE( -
                  ZDEV.MAIN.**, -
-                 DAT.PROD.**) -
+                 DAT.PROD.**, - 
+                 SYS1.AFO*.*) -
                BY(DSORG,EQ,(SAM,PDS,PDSE)) ) -
    OUTDD(SYSLIBS)  COMPRESS TOL(ENQF)
 /*

@@ -2,7 +2,7 @@
 //**
 //* See APPDUMP.jcl for notes                                       
 //* Be careful not in add hex '0d' when editing                     
-//* review your space parm needs
+//* Other than reviewing the output file SPACE parms, no changes are needed 
 //**
 //* clean up for reruns 
 //DEL  EXEC PGM=IEFBR14                                            
@@ -11,7 +11,7 @@
 //SYS  DD  DISP=(MOD,DELETE),DSN=IBMUSER.WAZI.DUMP.SYSLIBS,        
 // SPACE=(TRK,(1,0)),UNIT=SYSDA                                    
 //*
-//* Receive the files            
+//* Receive the image files            
 //RECV EXEC PGM=IKJEFT01 
 //IAPP DD PATH='/u/ibmuser/applibs.xmit',                       
 // PATHDISP=(KEEP,KEEP),PATHOPTS=OWRONLY,PATHMODE=(SIRUSR,SIWUSR)             
