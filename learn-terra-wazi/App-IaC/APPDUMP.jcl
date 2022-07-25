@@ -55,11 +55,11 @@
 //* added a large sys1 lib for testing 
 //SYSIN    DD *
  DUMP DATASET (INCLUDE( -
-                 ZDEV.FEATURE.**, -
-                 ZDEV.DEVELOP.**, -
-                 DAT.TEAM.**, -
-                 NLOPEZ.**.JCL, -
-                 NLOPEZ.IDZ.**) -
+                ZDEV.FEATURE.**, -
+                ZDEV.DEVELOP.**, -
+                DAT.TEAM.**, -
+                NLOPEZ.**.JCL, -
+                NLOPEZ.IDZ.**
                BY(DSORG,EQ,(SAM,PDS,PDSE)) ) -
   OUTDD(APPLIBS) COMPRESS TOL(ENQF)
 

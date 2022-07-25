@@ -82,7 +82,7 @@
 //****
 //****
 //*  NLOPEZ -myApp RPLs for testing  Dev and Prod loadlibs 
-//         DD DISP=SHR,DSN=NLOPEZZ.IDZ.LOAD       user build load
+//*        DD DISP=SHR,DSN=NLOPEZ.IDZ.LOAD     user build load
 //         DD DISP=SHR,DSN=ZDEV.FEATURE.CICSLOAD  user load
 //         DD DISP=SHR,DSN=ZDEV.DEVELOP.CICSLOAD  team load 
 //         DD DISP=SHR,DSN=ZDEV.MAIN.CICSLOAD     prod load 

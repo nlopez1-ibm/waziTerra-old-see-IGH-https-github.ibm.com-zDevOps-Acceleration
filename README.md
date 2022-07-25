@@ -98,3 +98,55 @@ The BASH and the 'Go' interpreter are also available.
 
 **Example Wazi Topology**
 ![Diagram of deployment](vpc-gen2-example.png)
+
+
+# WIP - Ansible On Windows - An alternate version to the basic postinit.bat script 
+Anisble is a script language used to configure systems. Where Terraform is a scripting lanuage to manage cloud resource. The 2 provide compilentary features to initialize and configure a new zOS instance. The prior section decribed how to use a simple windows script to perfoirm the configuration steps.   This section will explain how to use Ansible to perform those steps. 
+
+First, You'll need to install Ansible on a unix OS as it does not run nativly on Windows. Follow the instructions provided here:
+ > https://www.ibm.com/docs/en/cloud-paks/z-modernization-stack/2022.2?topic=developing-setting-up-ansible-wazi 
+
+
+This example, uses a pre-install Ubuntu under VM Ware on a Widnows PC. 
+
+
+1. Update Ubuntu, install Anisble with IBM plugins, install terraform, install git 
+   ``` 
+   sudo apt update && sudo apt upgrade   
+   sudo apt install software-properties-common 
+   sudo add-apt-repository --yes --update ppa:ansible/ansible 
+   
+   sudo apt install ansible &&   sudo apt install ansible-lint  &&  ansible-galaxy collection install ibm.ibm_zos_core
+   ansible --version 
+   
+   sudo apt install  software-properties-common gnupg2 curl
+   curl https://apt.releases.hashicorp.com/gpg | gpg --dearmor > hashicorp.gpg
+   sudo install -o root -g root -m 644 hashicorp.gpg /etc/apt/trusted.gpg.d/
+   sudo apt-add-repository "deb [arch=$(dpkg --print-architecture)] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+   sudo apt update
+   sudo apt install terraform
+   terraform --version
+
+   sudo apt install git
+
+
+   ```
+3. ???  From Ubuntu:
+   - Run this to generate ssh keys: 
+      - ``` ssh-keygen -t rsa -b 4096 -C "username@your-org.com" ```
+   - Run this to add your ssh key to your zOS Dev host 
+      - ssh-copy-id username@zos_ip_address
+
+      
+
+
+
+
+
+WSL - Ref: For full datails see https://docs.microsoft.com/en-us/windows/wsl/install
+
+vsCode for WSL - https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-vscode
+
+Ansible for WSL - https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-on-ubuntu
+
+
