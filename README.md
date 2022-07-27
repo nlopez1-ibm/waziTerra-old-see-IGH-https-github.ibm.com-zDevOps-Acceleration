@@ -79,6 +79,7 @@ The terra script creates a floating IP which is used to access the system after 
 **User ID**
 The default RACF user is IBMUSER and password is SYS1. One first logon you will need to reset the password. To reset it back to a the default, run this from a term:
 > ssh IBMUSER@mywazi tsocmd 'ALTUSER IBMUSER PASSWORD(sys1)'
+Where mywazi is your new VPC Floating IP(FIP) or the local hosts name assgined to the FIP.
 
 If you have trouble accessing the system try a re-IPL.  
 

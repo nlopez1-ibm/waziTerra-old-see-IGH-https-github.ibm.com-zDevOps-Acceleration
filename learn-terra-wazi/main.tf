@@ -39,23 +39,6 @@ resource "ibm_is_subnet" "subnet1" {
     total_ipv4_address_count = 256
 }
 
-
-resource "ibm_is_instance" "vsi1" {
-    name    = "${local.BASENAME}-vsi1"    
-    vpc     = ibm_is_vpc.vpc.id
-    resource_group   = data.ibm_resource_group.group.id
-    zone    = local.ZONE
-    
-    keys    = [data.ibm_is_ssh_key.ssh_key_id.id]
-    image   = data.ibm_is_image.wazi.id
-    profile = "mz2o-2x16"
-
-    primary_network_interface {
-        subnet          = ibm_is_subnet.subnet1.id
-        security_groups = [ibm_is_security_group.sg1.id]
-    }
-}
-
 resource "ibm_is_floating_ip" "fip1" {
     name   = "${local.BASENAME}-fip1"
     resource_group  = data.ibm_resource_group.group.id
@@ -80,6 +63,25 @@ resource ibm_is_security_group_rule all_out {
     remote    = "0.0.0.0/0"
 }
 
+
+
+resource "ibm_is_instance" "vsi1" {
+    name    = "${local.BASENAME}-vsi1"    
+    vpc     = ibm_is_vpc.vpc.id
+    resource_group   = data.ibm_resource_group.group.id
+    zone    = local.ZONE
+    
+    keys    = [data.ibm_is_ssh_key.ssh_key_id.id]
+    image   = data.ibm_is_image.wazi.id
+    profile = "mz2o-2x16"
+
+    primary_network_interface {
+        subnet          = ibm_is_subnet.subnet1.id
+        security_groups = [ibm_is_security_group.sg1.id]
+    }
+
+    
+}
 
 
 

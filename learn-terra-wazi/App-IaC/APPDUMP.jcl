@@ -25,10 +25,10 @@
 //****   
 //*
 //* Symbolics for dev lpar. Chg HOME dir and HLQ to match your acct.
-//USSHOME SET HOME='/u/nlopez/App-IaC/'
+//USSHOME SET HOME='/u/nlopez/App-IaC'
 //HLQ     SET HLQ='NLOPEZ'
 //*
-//* Step to remove old files
+//* Step to remove old files if they are there
 //DELXMIT  EXEC PGM=BPXBATCH,PARM='sh mkdir -p &HOME ; rm &HOME/*'
 //STDOUT   DD  SYSOUT=*
 //STDERR   DD  SYSOUT=*
@@ -51,22 +51,20 @@
 //*
 //* Add your App and/or personal PDSs in the first INCLUDE block..
 //* The second DUMP task can include any production or other 
-//* suppporting PDSs. Review the JCL space parm for both OUTDD's
-//* added a large sys1 lib for testing 
+//* suppporting PDSs. Review the JCL space parm for both OUTDD's//* 
 //SYSIN    DD *
  DUMP DATASET (INCLUDE( -
                 ZDEV.FEATURE.**, -
                 ZDEV.DEVELOP.**, -
                 DAT.TEAM.**, -
                 NLOPEZ.**.JCL, -
-                NLOPEZ.IDZ.**
+                NLOPEZ.IDZ.**) - 
                BY(DSORG,EQ,(SAM,PDS,PDSE)) ) -
   OUTDD(APPLIBS) COMPRESS TOL(ENQF)
 
   DUMP DATASET (INCLUDE( -
                  ZDEV.MAIN.**, -
-                 DAT.PROD.**, - 
-                 SYS1.AFO*.*) -
+                 DAT.PROD.**) -                  
                BY(DSORG,EQ,(SAM,PDS,PDSE)) ) -
    OUTDD(SYSLIBS)  COMPRESS TOL(ENQF)
 /*

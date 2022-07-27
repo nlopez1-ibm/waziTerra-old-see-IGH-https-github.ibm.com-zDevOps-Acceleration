@@ -14,13 +14,15 @@ goto Check_Args
     set mywazi=%1
     echo This script will wait for the IPL of the new zOS/VSI instance to perform the following steps: 
     echo  - Resets the IBMUSER acct password to SYS1.
-    echo  - Assits in installing the zOS CA-CERT locally  for 3270 access (windows mode).
+    echo  - Assists in installing the zOS CA-CERT locally  for 3270 access (windows mode).
     echo  - Generates an IBMUSER SSH KEY and the DBB/Git environment. 
     echo  - Prompts you to apply the new IBMUSER ssh key to your Git account for cloning on the new zOS (Github is use in this demo)
-    echo  - Assits in adding the new VSI IP to your local windows hosts file to simpilfy setup of IDz/vsCode and other local tools.
-    echo  - Backups, transmits and restores your custom Application runtime  (see App-IaC/APPDUMP.jcl)
+    echo  - Assists in adding the new VSI IP to your local windows hosts file to simpilfy setup of IDz/vsCode and other local tools.
+    echo  - Replicate your application runtime from Dev to the new host  (see App-IaC/APPDUMP.jcl)
     echo  - Applies your App's CICS CSD defintions (extracted by App-IaC/APPDUMP.jcl and applied by App-IaC/CICSDEF.jcl)
     echo  - Replaces the CICSTS56 STC JCL with your version that should include your App RPL libs (see App-IaC/CICSTS56.jcl)
+    echo  **
+    echo  ** Replication requires SSH access to the Applicaiton's zOS Dev host environment
     echo  ------------------------------
 
     echo  . & echo Please follow the prompts or CNTL/C to quit &echo  .  & echo  .    
@@ -30,10 +32,13 @@ goto Check_Args
     set devhost=nlopez@zos.dev
 
 
+
+
+
 :Init_User
     set initUser=y
     set /p initUser="Press enter to check the new VSI status and reset the IBMUSER password.  Or enter any char to skip this step --> "	
-    if  %initUser% NEQ y goto Init_Cert 
+    if  %initUser% NEQ y goto Init_Local_Cert
     echo Please wait... Or CNTL/C if this takes more than 5 mins. 
 
 :IPL_InProgress 
@@ -45,7 +50,7 @@ goto Check_Args
     echo . 
 
 
-:Init_Cert    
+:Init_Local_Cert   
     REM Cert = CN=STOCK_SELF_SIGNED_CERT    use windows MMC/cert snapon as needed 
     set initCert=y
     set /p initCert="Press enter to install the zOS CERT for 3270 access. Or enter any char to skip  --> "	
@@ -101,80 +106,72 @@ goto Check_Args
 
 :Restore_App_Runtime
     echo . & echo .& echo .
-    echo ***NOTE*** Ready to restore your Application runtime Image using the JCL in App-IaC/APPDUMP.jcl.    echo         
-    echo            Open that file to customize your runtime image (see its documentation). 
+    echo ***NOTE*** Ready to install your Application runtime Image using App-IaC/APPDUMP.jcl.        
+    echo            Open that jcl and define your runtime libraries (see its documentation). 
     
     set initAppRuntime=y
-    set /p initAppRuntime="Press enter when your ready to restore. Or enter any char to skip  --> "	
+    set /p initAppRuntime="Press enter when the JCL is ready. Or enter any char to skip  --> "	
     if  %initAppRuntime% NEQ y goto exitok
     
-    echo Preparing to Apply your Runtime Images  ... 
+    echo Preparing your Runtime Images  ... 
     del /q App-IaC\App-Runtime-Images\app* >NUL  2>&1
-
     set devhost=nlopez@zos.dev
 
 :Get_DevHost    
-    set /p devhost="Enter your Dev RACF UserID and zOS host name like [%devhost%]  -->"
-    
-    REM cleanup old files on dev host if they exist
-    ssh %devhost% "mkdir -p ~/App-IaC >/dev/null 2>&1 ; rm ~/App-IaC/* >/dev/null 2>&1"    
+    set /p devhost="Enter your UserID and the host of your Application's Dev env like  [%devhost%]  -->"
+    ssh %devhost% "ls >/dev/null 2>&1"            
     IF NOT ERRORLEVEL 1 goto Get_Images 
-
-    Echo *** ERROR*** Cant connect to %devhost%  Re-try or CNTL/C to exit 
+    Echo *** ERROR *** Cant connect to %devhost%  Re-try or CNTL/C to exit 
     goto Get_DevHost
 
 
-:Get_Images
-    scp -r App-IaC/APPDUMP.jcl  %devhost%:APPDUMP
+:Get_Images 
+    REM cleanup old files on dev host if they exist
+    ssh %devhost% "mkdir -p ~/App-IaC >/dev/null 2>&1 ; rm ~/App-IaC/* >/dev/null 2>&1"    
+    
     REM copy the jcl to an new MVS PS file to remove crnl, submit the jcl and delete the PS file 
-    ssh %devhost% "cp -F crnl APPDUMP //APPDUMP; submit //$LOGNAME.APPDUMP; tsocmd delete APPDUMP"
-    echo . & echo .& echo .
-    echo your App-IaC/APPDUMP.jcl  was submmited.  Waiting the job to complete...
-
+    scp -r App-IaC/APPDUMP.jcl  %devhost%:APPDUMP    
+    echo . 
+    ssh %devhost% "cp -F crnl APPDUMP //APPDUMP; submit //$LOGNAME.APPDUMP; tsocmd delete APPDUMP >/dev/null 2>&1"    
+    echo . 
+    echo Your version of App-IaC/APPDUMP.jcl was submmited.'
     REM you may need to tweak this wait loop if you are dumping large files 
-    set wait=5
+    set wait=10
 
 :Waiting_for_Images 
-    echo Waiting at interval %wait% 
+    echo Waiting for the file copies .... Countdown interval %wait% 
     ping localhost -n 10 > NUL
-    sftp  -P 2022 -b App-IaC/sget_AppImage.script %devhost% > NUL
+    sftp -b App-IaC/sget_AppImage.script %devhost% > NUL
     
     IF EXIST App-IaC\App-Runtime-Images\applibs.xmit GOTO Image_Ready 
-    IF "%wait%"=="0" GOTO TimedOut
+    IF "%wait%"=="0" GOTO ImageError 
 
     set /a wait-=1 
     GOTO Waiting_for_Images 
 
-:TimedOut
+:ImageError 
     echo . & echo .& echo . 
-    echo *** ERROR*** The application runtime images were not found or the APPDUMP job failed or long running. 
-    echo              Please review the JOB's status in SDSF and rerun this script when ready
+    echo *** ERROR*** The application image copy was not found or empty (size=%size%)
+    echo              The APPDUMP job may have failed or is still running 
+    echo              Review the JOB in SDSF and rerun this script when ready
     pause 
-    goto exitok
+    goto exit12
       
 
-:Image_ready     
-echo on
-    set image_size=0
-    call :filesize "%CD%\App-IaC\App_Runtime_Image\applibs.xmit"
-    echo sise is  %image_size%
-    if  %image_size% == "0" echo empty 
-    if  %image_size% NEQ "0" echo not_empty 
-    pause
+:Image_ready         
+    rem check if the job actual created some output or an empty file
+    set size=-1
+    call :filesize %CD%\App-IaC\App-Runtime-Images\applibs.xmit
+    if  %size% == 0 GOTO ImageError 
 
-
- 
+:Image_Not_Empty
     echo Restoring your image on %mywazi%  using  App-IaC/APPREST.jcl ....
     sftp -b App-IaC/sput_AppImage.script ibmuser@%mywazi%
     scp -r App-IaC/APPREST.jcl  ibmuser@%mywazi%:APPREST
     ssh ibmuser@%mywazi% "cp -F crnl APPREST //APPREST; submit //$LOGNAME.APPREST "
     
-    echo Logon to your new zOS instance and double check the JES outout for the above job to make sure it worked.  
-    echo The Job name starts with IBMUSER. 
-    echo On the first login you must reset your IBMUSER password from the default SYS1. 
-    echo If the job failed, edit /u/ibmuser/APPREST.jcl on %mywazi% and rerun manually. 
-    pause  
-
+    echo . & echo The Restore job has been submitted. The jobname starts with IBMUSER. & echo . 
+    
 
 :Apply_CICS_App_Defs
     set initCICS=y
@@ -196,26 +193,27 @@ echo on
 
 :Apply_CICSDefs
     REM //jcl defaults to IBMUSER.JCL. Its a preallocated PDS used for this demo (careful is a PDS prone to SB37)
-    REM the cntl files was transmitted with xmit if it was created. 
+    REM the cntl file was transmitted with xmit if it was created. 
     ssh ibmuser@%mywazi% cp -A CICSDEF.cntl "//jcl"
     scp -r App-IaC/CICSDEF.jcl  ibmuser@%mywazi%:CICSDEF.jcl
     ssh ibmuser@%mywazi% "submit  CICSDEF.jcl"
-    echo Job "/u/ibmuser/CICSDEF.jcl" submitted and will apply your extracted Dev CICS defintions.          
+    echo Job "/u/ibmuser/CICSDEF.jcl" submitted and will apply your App's CICS defintions.          
     timeout /T 3  
 
 :ResetCICS_STC 
-    echo WARNING: Did you review/edit RPL libs in App-IaC/CICSTS56.jcl file yet? Press enter if you have. 
+    echo Edit App-IaC/CICSTS56.jcl to add your App's RPL libs to the new host's CICS region.
     pause
 
-    echo Applying and restarting CICS with your customized proc  ... 
+    echo Applying and restarting CICS with your changes  ... 
     ssh ibmuser@%mywazi% ". ./.profile; opercmd c cicsts56 "
 
     scp -r App-IaC/CICSTS56.jcl  ibmuser@%mywazi%:CICSTS56 
     ssh ibmuser@%mywazi% cp -F crnl ~/CICSTS56 "//""'SYS1.PROCLIB'"" 
     ping localhost -n 3 > NUL
 
+    rem FYI - using zoau opercmd
     ssh ibmuser@%mywazi% ". ./.profile; opercmd s cicsts56; sleep 5;  opercmd F CICSTS56,CEDA INSTALL 'GROUP(DAT)'"
-    echo CICS Def and STC jobs complete. Review SDSF Output for errors under user IBMUSER.
+    echo CICS Region restarted. All JES Output is under jobname IBMUSER*.
     timeout /T 5 
     goto exitok
 
@@ -225,20 +223,27 @@ echo on
 :exitok 
     echo ...............................& echo ............................... &  echo ...............................
     echo  *** POSTINIT completed.  ***
-    echo Use a 3270 term that supports TLS/Certs like VISTA-3270 (PCOM or IDz host term  may not work)
-    echo zOS Ports (as of June-22 release): 
-    echo    RSE=8137   RSEAPI=8195   zOSMF=10443   TN3270=992(TLS with MS-CAPI) 
+    echo Your Application runtime has been processed.
+    echo Logon with the IBMUSER RACF ID to review. You can now work on new features with DBB and Git.         
+    echo .
+    echo Note: 
+    echo  - On the first login you must reset your password from the default SYS1.     
+    echo  - If the resetore job failed, edit /u/ibmuser/APPREST.jcl to manually fix and rerun.       
+    echo  - Use a 3270 term that supports TLS/Certs like VISTA-3270 (PCOM or IDz host term may not work)
+    echo  - zOS Ports (as of June-22 release): 
+    echo        RSE=8137   RSEAPI=8195   zOSMF=10443   TN3270=992(TLS with MS-CAPI)     
+    echo  - SSH access has bee pre-configured.    "SSH with ->   SSH IBMUSER@%mywazi% "
+    echo  - If you updated your local hosts file, "SSH with ->   SSH IBMUSER@mywazi"
+    echo  - If you have trouble accessing the new system try a re-IPL from the VSI actions menu.
+    echo  - If your runtime is missing files, update APPDUMP and rerun this script (skip to the restore step).    
+    echo  - Your new VSI(${local.BASENAME}-vsi1) IP is ${ibm_is_floating_ip.fip1.address} 
+    echo  - When your done with this instance run 'terraform destroy'  
+    echo --EOF 
 
-    echo ...............................
-    echo The default RACF user and  password is IBMUSER SYS1.   YOur local SSH key has bee pre-configured
-    echo "SSH with ->   SSH IBMUSER@%mywazi%  "
-    echo "If you updated your local hosts file, SSH with ->      SSH IBMUSER@mywazi"
-    echo If you have trouble accessing the system try a re-IPL from the VSI action menu.
-    echo If you runtime is missing files, update APPDUMP and rerun this script and skip to the restore step.    
-    echo Your new VSI(${local.BASENAME}-vsi1) IP is ${ibm_is_floating_ip.fip1.address} 
-    echo When your done with this instance run 'terraform destroy'  
-    echo ................................
 
+
+
+:: subs ---
 :exit12
  EXIT /B 12
 
@@ -257,11 +262,7 @@ echo on
         goto exit12
 
 
-:: Set filesize of first argument in %size% variable, and return
+REM Set filesize of first argument in %size% variable, and return
 :filesize
-echo file is %1
-echo size is %~z1
-  set image_size=%~z1
-  exit /b 0
-
-
+    set size=%~z1
+    exit /b 0
