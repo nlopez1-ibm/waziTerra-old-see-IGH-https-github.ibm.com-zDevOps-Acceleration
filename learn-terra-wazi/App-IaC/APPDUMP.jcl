@@ -1,6 +1,6 @@
-//NLOPEZR JOB 'ACCT#',MSGCLASS=H,REGION=0M,MSGLEVEL=(1,1)
+//NLOPEZT JOB 'ACCT#',MSGCLASS=H,REGION=0M,MSGLEVEL=(1,1)
 //*
-//*       Application build and runtime copy job 
+//*       Application runtime replication job 
 //* This job copies an App's build and runtime configuration on Dev   
 //* to recreate a similar configuration on any new zOS instance. 
 //* 
@@ -9,8 +9,8 @@
 //*  2: SYSLIBS - a copy of an app's prod libs like joblibs, cntl ...
 //*  3: CICSDEF - a CICS definition extract by App Group
 //*
-//* Change and save in this folder the following: 
-//*  + Jobcard, space parms and HLQ. 
+//* Change these items and save:
+//*  + Jobcard, space parms, HLQ, uss home dir. 
 //*  + The first DUMP control card to include your App's PDSs   
 //*    like loadlib, jcl, CNTL... whatever you need on the new env.
 //*  + The second DUMP card to include production libs 
@@ -44,7 +44,7 @@
 // SPACE=(TRK,(1,0)),UNIT=SYSDA
 
 //*
-//** Dump build and runtime libs 
+//** Dump build and runtime libs - review the space parm 
 //COPY     EXEC PGM=ADRDSSU
 //APPLIBS  DD  DISP=(NEW,CATLG),DSN=&HLQ..WAZI.DUMP.APPLIBS,
 // DCB=(RECFM=U,DSORG=PS,LRECL=0,BLKSIZE=0),SPACE=(CYL,(1,25)),
@@ -62,7 +62,8 @@
                 ZDEV.FEATURE.**, -
                 ZDEV.DEVELOP.**, -
                 DAT.**, -
-                NLOPEZ.**) -
+                NLOPEZ.DAT.**, -
+                NLOPEZ.IDZ.**) -
                BY(DSORG,EQ,(SAM,PDS,PDSE)) ) OUTDD(APPLIBS) TOL(ENQF)
 
   DUMP DATASET (INCLUDE( -

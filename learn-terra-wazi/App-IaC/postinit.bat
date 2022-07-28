@@ -12,17 +12,17 @@ goto Check_Args
 
 :GoodToGo 
     set mywazi=%1
-    echo This script will wait for the IPL of the new zOS/VSI instance to perform the following steps: 
+    echo This script wait for the IPL of the new zOS/VSI instance to perform the following steps: 
     echo  - Resets the IBMUSER acct password to SYS1.
     echo  - Assists in installing the zOS CA-CERT locally  for 3270 access (windows mode).
-    echo  - Generates an IBMUSER SSH KEY and the DBB/Git environment. 
+    echo  - Generates an IBMUSER SSH KEY and initializes a DBB/Git build environment. 
     echo  - Prompts you to apply the new IBMUSER ssh key to your Git account for cloning on the new zOS (Github is use in this demo)
     echo  - Assists in adding the new VSI IP to your local windows hosts file to simpilfy setup of IDz/vsCode and other local tools.
-    echo  - Replicate your application runtime from Dev to the new host  (see App-IaC/APPDUMP.jcl)
+    echo  - Replicates your application runtime from Dev to the new host  (see App-IaC/APPDUMP.jcl)
     echo  - Applies your App's CICS CSD defintions (extracted by App-IaC/APPDUMP.jcl and applied by App-IaC/CICSDEF.jcl)
     echo  - Replaces the CICSTS56 STC JCL with your version that should include your App RPL libs (see App-IaC/CICSTS56.jcl)
     echo  **
-    echo  ** Replicating you App requires SSH access to the Application's zOS Dev host environment
+    echo  ** Replicating your App requires SSH access to your zOS developement host. 
 
 
     echo  ------------------------------
@@ -39,7 +39,7 @@ goto Check_Args
 
 :Init_User
     set initUser=y
-    set /p initUser="Press enter to check the new VSI status and reset the IBMUSER password.  Or enter any char to skip this step --> "	
+    set /p initUser="Press enter to check the new zOS status and reset the IBMUSER password.  Or enter any char to skip this step --> "	
     if  %initUser% NEQ y goto Init_Local_Cert
     echo Please wait... Or CNTL/C if this takes more than 5 mins. 
 
@@ -167,15 +167,19 @@ goto Check_Args
     call :filesize %CD%\App-IaC\App-Runtime-Images\applibs.xmit
     if  %size% == 0 GOTO ImageError 
 
-:Image_Not_Empty
-    echo Restoring your image on %mywazi%  using  App-IaC/APPREST.jcl ....
-    sftp -b App-IaC/sput_AppImage.script ibmuser@%mywazi%
-    ping localhost -n 3 > NUL
+:Submit_Restore_Job
+    echo Restoring your image on %mywazi%  using  App-IaC/APPREST.jcl. Recycling down CICS to prevent enq on rpl....     
+
+    rem assume cics rpls are being restored so shut down cics to avoid enqs 
+    ssh ibmuser@%mywazi% ". ./.profile; opercmd c cicsts56 " > NUL
     scp -r App-IaC/APPREST.jcl  ibmuser@%mywazi%:APPREST
-    ping localhost -n 3 > NUL
-    ssh ibmuser@%mywazi% "cp -F crnl APPREST //APPREST; submit //$LOGNAME.APPREST "
-    
+    ping localhost -n 3 > NUL    
+
+    ssh ibmuser@%mywazi% "tsocmd delete APPREST >/dev/null 2>&1; cp -A -F crnl APPREST //APPREST; submit //$LOGNAME.APPREST; sleep 5"        
     echo . & echo The Restore job has been submitted. The jobname starts with IBMUSER. & echo . 
+
+    ssh ibmuser@%mywazi% ". ./.profile; sleep 5; opercmd s cicsts56"  > NUL
+
     
 
 :Apply_CICS_App_Defs
@@ -234,12 +238,12 @@ goto Check_Args
     echo .
     echo Note: 
     echo  - On the first login you must reset your password from the default SYS1.     
-    echo  - If the APPREST job failed, edit /u/ibmuser/APPREST.jcl to manually fix and rerun.       
+    echo  - If the APPREST job failed, use ISPF to edit and resubmit file IBMUSER.APPREST.
     echo  - Use a 3270 term that supports TLS/Certs like VISTA-3270 (PCOM or IDz host term may not work)
     echo  - zOS Ports (as of June-22 release): 
     echo        RSE=8137   RSEAPI=8195   zOSMF=10443   TN3270=992(TLS with MS-CAPI)     
-    echo  - SSH access has bee pre-configured.    "SSH with ->   SSH IBMUSER@%mywazi% "
-    echo  - If you updated your local hosts file, "SSH with ->   SSH IBMUSER@mywazi"
+    echo  - SSH access has bee pre-configured.    SSH with --   SSH IBMUSER@%mywazi% 
+    echo  - If you updated your local hosts file, SSH with --   SSH IBMUSER@mywazi
     echo  - If you have trouble accessing the new system try a re-IPL from the VSI actions menu.
     echo  - If your runtime is missing files, update APPDUMP and rerun this script (skip to the restore step).    
     echo  - If CICSTS56 is not up, review the JES output for the STC and restart with "/F S CICSTS56"    
