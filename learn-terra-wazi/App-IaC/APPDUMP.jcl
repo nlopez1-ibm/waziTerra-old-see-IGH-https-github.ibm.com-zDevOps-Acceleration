@@ -38,6 +38,11 @@
 // SPACE=(TRK,(1,0)),UNIT=SYSDA
 //DELSYS   DD  DISP=(MOD,DELETE),DSN=&HLQ..WAZI.DUMP.SYSLIBS,
 // SPACE=(TRK,(1,0)),UNIT=SYSDA
+//DELAPPC  DD  DISP=(MOD,DELETE),DSN=&HLQ..WAZI.DUMP.APPLIBS.COMP,
+// SPACE=(TRK,(1,0)),UNIT=SYSDA
+//DELSYSC  DD  DISP=(MOD,DELETE),DSN=&HLQ..WAZI.DUMP.SYSLIBS.COMP,
+// SPACE=(TRK,(1,0)),UNIT=SYSDA
+
 //*
 //** Dump build and runtime libs 
 //COPY     EXEC PGM=ADRDSSU
@@ -56,27 +61,38 @@
  DUMP DATASET (INCLUDE( -
                 ZDEV.FEATURE.**, -
                 ZDEV.DEVELOP.**, -
-                DAT.TEAM.**, -
-                NLOPEZ.**.JCL, -
-                NLOPEZ.IDZ.**) - 
-               BY(DSORG,EQ,(SAM,PDS,PDSE)) ) -
-  OUTDD(APPLIBS) COMPRESS TOL(ENQF)
+                DAT.**, -
+                NLOPEZ.**) -
+               BY(DSORG,EQ,(SAM,PDS,PDSE)) ) OUTDD(APPLIBS) TOL(ENQF)
 
   DUMP DATASET (INCLUDE( -
                  ZDEV.MAIN.**, -
                  DAT.PROD.**) -                  
-               BY(DSORG,EQ,(SAM,PDS,PDSE)) ) -
-   OUTDD(SYSLIBS)  COMPRESS TOL(ENQF)
+               BY(DSORG,EQ,(SAM,PDS,PDSE)) ) OUTDD(SYSLIBS) TOL(ENQF)
 /*
+//* Compress the output 
+//COMPAPP  EXEC PGM=AMATERSE,PARM=SPACK 
+//SYSPRINT DD SYSOUT=*                                                 
+//SYSUT1   DD DISP=SHR,DSN=NLOPEZ.WAZI.DUMP.APPLIBS                    
+//SYSUT2   DD  DISP=(NEW,CATLG),DSN=NLOPEZ.WAZI.DUMP.APPLIBS.COMP,     
+// DCB=(RECFM=F,DSORG=PS,LRECL=0,BLKSIZE=0),SPACE=(CYL,(1,25),RLSE),   
+// UNIT=SYSDA                         
+//*
+//COMPSYS  EXEC PGM=AMATERSE,PARM=SPACK 
+//SYSPRINT DD SYSOUT=*                                                 
+//SYSUT1   DD DISP=SHR,DSN=NLOPEZ.WAZI.DUMP.SYSLIBS                    
+//SYSUT2   DD  DISP=(NEW,CATLG),DSN=NLOPEZ.WAZI.DUMP.SYSLIBS.COMP,     
+// DCB=(RECFM=F,DSORG=PS,LRECL=0,BLKSIZE=0),SPACE=(CYL,(1,25),RLSE),   
+// UNIT=SYSDA                         
 //*
 //* Convert the dumps and store them in USS for transport.
 //* This assumes your HOME dir has enough free space.
 //XMIT EXEC PGM=IKJEFT01
-//IAPPLIBS    DD DSN=&HLQ..WAZI.DUMP.APPLIBS,DISP=OLD
+//IAPPLIBS    DD DSN=&HLQ..WAZI.DUMP.APPLIBS.COMP,DISP=OLD
 //OAPPLIBS    DD PATH='&HOME/applibs.xmit',
 //            PATHDISP=(KEEP,DELETE),
 //            PATHOPTS=(OWRONLY,OCREAT,OEXCL),PATHMODE=(SIRUSR,SIWUSR)
-//ISYSLIBS    DD DSN=&HLQ..WAZI.DUMP.SYSLIBS,DISP=OLD
+//ISYSLIBS    DD DSN=&HLQ..WAZI.DUMP.SYSLIBS.COMP,DISP=OLD
 //OSYSLIBS    DD PATH='&HOME/syslibs.xmit',
 //            PATHDISP=(KEEP,DELETE),
 //            PATHOPTS=(OWRONLY,OCREAT,OEXCL),PATHMODE=(SIRUSR,SIWUSR)

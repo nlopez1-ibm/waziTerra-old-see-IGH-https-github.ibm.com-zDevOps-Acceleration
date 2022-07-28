@@ -100,6 +100,7 @@ The BASH and the 'Go' interpreter are also available.
 **Example Wazi Topology**
 ![Diagram of deployment](vpc-gen2-example.png)
 
+yes
 
 # WIP - Ansible On Windows - An alternate version to the basic postinit.bat script 
 Anisble is a script language used to configure systems. Where Terraform is a scripting lanuage to manage cloud resource. The 2 provide compilentary features to initialize and configure a new zOS instance. The prior section decribed how to use a simple windows script to perfoirm the configuration steps.   This section will explain how to use Ansible to perform those steps. 

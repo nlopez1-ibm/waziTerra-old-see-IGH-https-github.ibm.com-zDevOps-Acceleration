@@ -22,7 +22,9 @@ goto Check_Args
     echo  - Applies your App's CICS CSD defintions (extracted by App-IaC/APPDUMP.jcl and applied by App-IaC/CICSDEF.jcl)
     echo  - Replaces the CICSTS56 STC JCL with your version that should include your App RPL libs (see App-IaC/CICSTS56.jcl)
     echo  **
-    echo  ** Replication requires SSH access to the Applicaiton's zOS Dev host environment
+    echo  ** Replicating you App requires SSH access to the Application's zOS Dev host environment
+
+
     echo  ------------------------------
 
     echo  . & echo Please follow the prompts or CNTL/C to quit &echo  .  & echo  .    
@@ -59,7 +61,7 @@ goto Check_Args
     mkdir c:\tmp >NUL
     echo Copying your cert from %mywazi% ... 
     scp ibmuser@%mywazi%:/u/ibmuser/common_cacert c:/tmp/common.cer
-    echo Follow the windows dialog to Store the Cert into your 'Local Machine' 'Trusted Root...' location
+    echo Press "Install Certificate" on the popup dialog to Store the Cert into your 'Local Machine' 'Trusted Root...' location
     explorer /e,c:\tmp\common.cer
     pause 
 
@@ -81,8 +83,9 @@ goto Check_Args
     ssh ibmuser@%mywazi% "cat /u/ibmuser/.ssh/id_rsa.pub " > App-IaC/id_rsa.pub 
     ssh ibmuser@%mywazi% "mkdir dbb-logs "
     echo .
-    echo The IBMUSER public is copied into /App-IaC/id_rsa.pub 
-    echo Cut/Paste it into your GitHub acct NOW!! waiting....
+    echo The IBMUSER public key is now in this local folder called /App-IaC/id_rsa.pub 
+    echo Cut/Paste its contents into your GitHub acct NOW!! waiting....
+    echo . & echo . & echo . 
     dir App-IaC\id_rsa*
     pause 
 
@@ -98,7 +101,7 @@ goto Check_Args
     if  %initHosts% NEQ y goto Restore_App_Runtime
 
     echo . & echo .& echo .
-    echo Run this cmd from a windows TERM in ADMIN mode  [notepad  C:\Windows\System32\drivers\etc\hosts]
+    echo Run this cmd from a windows TERM in ADMIN mode  [  notepad  C:\Windows\System32\drivers\etc\hosts  ]
     echo Then Paste the text below into the hosts file and save (no extra spaces between parms and remove old entries).  
     echo %1 mywazi  
     pause 
@@ -112,13 +115,13 @@ goto Check_Args
     set initAppRuntime=y
     set /p initAppRuntime="Press enter when the JCL is ready. Or enter any char to skip  --> "	
     if  %initAppRuntime% NEQ y goto exitok
-    
-    echo Preparing your Runtime Images  ... 
+        
     del /q App-IaC\App-Runtime-Images\app* >NUL  2>&1
     set devhost=nlopez@zos.dev
 
 :Get_DevHost    
     set /p devhost="Enter your UserID and the host of your Application's Dev env like  [%devhost%]  -->"
+    echo Preparing your Runtime Image  ... 
     ssh %devhost% "ls >/dev/null 2>&1"            
     IF NOT ERRORLEVEL 1 goto Get_Images 
     Echo *** ERROR *** Cant connect to %devhost%  Re-try or CNTL/C to exit 
@@ -136,17 +139,17 @@ goto Check_Args
     echo . 
     echo Your version of App-IaC/APPDUMP.jcl was submmited.'
     REM you may need to tweak this wait loop if you are dumping large files 
-    set wait=10
+    set loop=10
 
 :Waiting_for_Images 
-    echo Waiting for the file copies .... Countdown interval %wait% 
-    ping localhost -n 10 > NUL
+    echo Waiting for the file copies .... Countdown interval %loop% 
+    timeout /T 15    
     sftp -b App-IaC/sget_AppImage.script %devhost% > NUL
     
     IF EXIST App-IaC\App-Runtime-Images\applibs.xmit GOTO Image_Ready 
-    IF "%wait%"=="0" GOTO ImageError 
+    IF "%loop%"=="0" GOTO ImageError 
 
-    set /a wait-=1 
+    set /a loop-=1 
     GOTO Waiting_for_Images 
 
 :ImageError 
@@ -167,7 +170,9 @@ goto Check_Args
 :Image_Not_Empty
     echo Restoring your image on %mywazi%  using  App-IaC/APPREST.jcl ....
     sftp -b App-IaC/sput_AppImage.script ibmuser@%mywazi%
+    ping localhost -n 3 > NUL
     scp -r App-IaC/APPREST.jcl  ibmuser@%mywazi%:APPREST
+    ping localhost -n 3 > NUL
     ssh ibmuser@%mywazi% "cp -F crnl APPREST //APPREST; submit //$LOGNAME.APPREST "
     
     echo . & echo The Restore job has been submitted. The jobname starts with IBMUSER. & echo . 
@@ -223,12 +228,13 @@ goto Check_Args
 :exitok 
     echo ...............................& echo ............................... &  echo ...............................
     echo  *** POSTINIT completed.  ***
-    echo Your Application runtime has been processed.
-    echo Logon with the IBMUSER RACF ID to review. You can now work on new features with DBB and Git.         
+    echo Your Application runtime has been restored.
+    echo Logon with IBMUSER/SYS1 UserID/password to review your runtime. 
+    echo You can now point IDz to this instance and work on new features with DBB and Git.         
     echo .
     echo Note: 
     echo  - On the first login you must reset your password from the default SYS1.     
-    echo  - If the resetore job failed, edit /u/ibmuser/APPREST.jcl to manually fix and rerun.       
+    echo  - If the APPREST job failed, edit /u/ibmuser/APPREST.jcl to manually fix and rerun.       
     echo  - Use a 3270 term that supports TLS/Certs like VISTA-3270 (PCOM or IDz host term may not work)
     echo  - zOS Ports (as of June-22 release): 
     echo        RSE=8137   RSEAPI=8195   zOSMF=10443   TN3270=992(TLS with MS-CAPI)     
@@ -236,7 +242,7 @@ goto Check_Args
     echo  - If you updated your local hosts file, "SSH with ->   SSH IBMUSER@mywazi"
     echo  - If you have trouble accessing the new system try a re-IPL from the VSI actions menu.
     echo  - If your runtime is missing files, update APPDUMP and rerun this script (skip to the restore step).    
-    echo  - Your new VSI(${local.BASENAME}-vsi1) IP is ${ibm_is_floating_ip.fip1.address} 
+    echo  - If CICSTS56 is not up, review the JES output for the STC and restart with "/F S CICSTS56"    
     echo  - When your done with this instance run 'terraform destroy'  
     echo --EOF 
 
