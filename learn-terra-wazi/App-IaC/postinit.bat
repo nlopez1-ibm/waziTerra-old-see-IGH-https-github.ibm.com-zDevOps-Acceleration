@@ -1,18 +1,13 @@
 @ECHO OFF
-REM A Windows script to config access and appLy IaC APP configs afdter a VSI create
-REM NOTES: 
-REM  + vsi sometimes hangs - may need to wait a few minutes 
-REM  + SCP moves in bin mode and addes a '0d'(lf) and cant scp directly to a PDS!
-REM    So after an SCP use 'CP -F crnl' to strip end of line stuff into a MVS file. 
+REM A Windows script to config access and apply IaC App image  after a VSI ipl  (NLopez 2022)
 cls ; SETLOCAL enabledelayedexpansion ;  @echo off
 
-
-echo  *** POSTINIT Started (PROTOTYPE):  App-IaC Setup on Wazi aaS VSI IP %1  (NLopez) *** 
+echo  *** POSTINIT Started (PROTOTYPE 0.1c):  App-IaC Setup on Wazi aaS VSI IP %1  (NLopez) *** 
 goto Check_Args
 
 :GoodToGo 
     set mywazi=%1
-    echo This script wait for the IPL of the new zOS/VSI instance to perform the following steps: 
+    echo This script waits for the IPL of the new zOS/VSI instance to perform the following steps: 
     echo  - Resets the IBMUSER acct password to SYS1.
     echo  - Assists in installing the zOS CA-CERT locally  for 3270 access (windows mode).
     echo  - Generates an IBMUSER SSH KEY and initializes a DBB/Git build environment. 
@@ -22,7 +17,7 @@ goto Check_Args
     echo  - Applies your App's CICS CSD defintions (extracted by App-IaC/APPDUMP.jcl and applied by App-IaC/CICSDEF.jcl)
     echo  - Replaces the CICSTS56 STC JCL with your version that should include your App RPL libs (see App-IaC/CICSTS56.jcl)
     echo  **
-    echo  ** Replicating your App requires SSH access to your zOS developement host. 
+    echo  ** Replicating your App requires SSH access to your zOS development host. 
 
 
     echo  ------------------------------
@@ -85,8 +80,7 @@ goto Check_Args
     echo .
     echo The IBMUSER public key is now in this local folder called /App-IaC/id_rsa.pub 
     echo Cut/Paste its contents into your GitHub acct NOW!! waiting....
-    echo . & echo . & echo . 
-    dir App-IaC\id_rsa*
+    echo . & echo . & echo .     
     pause 
 
     REM - clone my repo using new ssh key from GITHUB 
@@ -116,7 +110,7 @@ goto Check_Args
     set /p initAppRuntime="Press enter when the JCL is ready. Or enter any char to skip  --> "	
     if  %initAppRuntime% NEQ y goto exitok
         
-    del /q App-IaC\App-Runtime-Images\app* >NUL  2>&1
+    del /q App-IaC\App-Runtime-Images\* >NUL  2>&1
     set devhost=nlopez@zos.dev
 
 :Get_DevHost    
@@ -168,10 +162,11 @@ goto Check_Args
     if  %size% == 0 GOTO ImageError 
 
 :Submit_Restore_Job
-    echo Restoring your image on %mywazi%  using  App-IaC/APPREST.jcl. Recycling down CICS to prevent enq on rpl....     
+    echo Restoring your image on %mywazi%  using  App-IaC/APPREST.jcl. Recycling CICS to prevent enq on rpl....     
 
     rem assume cics rpls are being restored so shut down cics to avoid enqs 
-    ssh ibmuser@%mywazi% ". ./.profile; opercmd c cicsts56 " > NUL
+    ssh ibmuser@%mywazi% ". ./.profile; opercmd c cicsts56 " > NUL    
+    sftp -b App-IaC/sput_AppImage.script ibmuser@%mywazi%
     scp -r App-IaC/APPREST.jcl  ibmuser@%mywazi%:APPREST
     ping localhost -n 3 > NUL    
 
@@ -182,7 +177,7 @@ goto Check_Args
 
     
 
-:Apply_CICS_App_Defs
+:Apply_CICS_App_Defs    
     set initCICS=y
     set /p initCICS="Press enter to apply your CICS Application defintion. Or enter any char to skip  --> "	
     if  %initCICS% NEQ y goto exitok
