@@ -3,8 +3,8 @@ This repo explains how to create a new Wazi aaS(WaaS) zOS cloud instance using T
 
 
 2 folders are included to explain how to create an [IBM Cloud Wazi aaS](https://www.ibm.com/cloud/wazi-as-a-service):
-> `learn-terra-basic` provides a basic overview of Terraform scripting. 
-> `learn-terra-wazi` an advanced example that creates a new WaaS instance using the 'experimental' release.  This folder also includes a prototype **Application IaC** windows script to demonstrate how to replicate an application's runtime from one zOS like a development LPAR to a new virtual zOS for building and testing. 
+> - `learn-terra-basic` provides a basic overview of Terraform scripting. 
+> - `learn-terra-wazi` an advanced example that creates a new WaaS instance using the 'experimental' release.  This folder also includes a prototype **Application IaC** windows script to demonstrate how to replicate an application's runtime from one zOS like a development LPAR to a new virtual zOS for building and testing. 
 
 
 ## The Folder - 'learn-terra-basics'
@@ -22,14 +22,14 @@ This folder has sample *.tf terraform files.  They include getting started tips 
    >+ In vsCode, open a terminal to run terraform commands by right clicking the project folder and selecting "Open in Integrated terminal". 
 
 #### After the install
-Use an editor like vsCode and open main.tf script and review it.  From a DOS terminal, run the terraform lifecycle:
+Use an editor like vsCode and open main.tf script and review it.  From a DOS terminal, CD to this folder and run the terraform cmds:
 | cmd  | desc | 
 | --- | --- | 
-| `terraform init` | Download all IBM Cloud provider plugins |
-| `terraform plan` | Optional step to validate your script |
-| `terraform apply` | Run  |
-| `terraform show` | Review an existing run  |
-| `terraform destroy` | Remove an instance |
+| `terraform init` | Required: Download all IBM Cloud provider plugins |
+| `terraform plan` | Optional: step to validate your script |
+| `terraform apply` | Required: Run  |
+| `terraform show` | Optional: Review an existing run  |
+| `terraform destroy` | Optional: Remove an instance |
 
 
 For more on IBM's terraform plugin, scroll to the "VPC infrastructure" topic in https://registry.terraform.io/providers/IBM-Cloud/ibm/latest/docs
@@ -50,7 +50,7 @@ After that, review the main.tf and adjust the BASENAME local variable. Then open
 + Most resource blocks have been updated to include the resource group id.
 + The IBM sample does not adhere to normal terraform file naming conventions. For example it calls the main script `vpc.tf`.  I changed it to `main.tf`.  But terraform really doesnt care what you call the file as long as it ends in .tf 
 
-[**FYI: This is a link to IBM terraform plugin Doc](https://cloud.ibm.com/docs/ibm-cloud-provider-for-terraform?topic=ibm-cloud-provider-for-terraform-provider-template#code-snippets)
+[**This is a link to IBM's terraform plugin Doc](https://cloud.ibm.com/docs/ibm-cloud-provider-for-terraform?topic=ibm-cloud-provider-for-terraform-provider-template#code-snippets)
 
 
 
