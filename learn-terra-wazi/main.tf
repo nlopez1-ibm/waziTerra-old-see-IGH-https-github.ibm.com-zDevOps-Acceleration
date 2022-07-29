@@ -94,7 +94,7 @@ output "Info" {
     Run "terraform show" to redisplay these instructions.
 
     A special DEMO script (postinit) has been created to initialize a dev runtime on the new instance.    
-    Cut and paste the command below to run the scrip:
+    Cut and paste the command below to run the script:
        call App-Iac/postinit  ${ibm_is_floating_ip.fip1.address}  
 
     See the README.md for more details.        
