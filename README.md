@@ -60,8 +60,9 @@ This folder also includes a sample IaC Windows script `App-IaC/postinit.bat` to 
 ![From Dev to VSI Runtime Replication](App_IaC.png)
 
 **The postinit script**
-&nbsp;
-After running `terraform apply`, main.tf will prompt you to start the postinit script which:
+
+
+   After running `terraform apply`, main.tf will prompt you to start the postinit script which:
    -  Runs `App-IaC/APPDUMP.jcl` (found in this folder) on your Dev LPAR. It copies __your__ application image using your SSH acct. You'll need to edit this jcl before running it.  See the jcl for details
    - SFTPs the image to the new zOS instance and restores the files using `App-IaC/APPREST.jcl`
    - Runs `App-IaC/CICSDEF.jcl` to define your App's CICS definitions. The definitions are extracted by the APPDUMP job using a sample CICS GROUP called "DAT". Change that before running. 
