@@ -3,6 +3,7 @@
 # + bad port rules plus missing outboud rules 
 
 # locals and date blocks added here as per the sample 
+# Note: Change the basename to create your instance
 locals {
     BASENAME    = "nelson-dbb-terra2"
     ZONE        = "br-sao-3"
@@ -82,9 +83,7 @@ resource "ibm_is_instance" "vsi1" {
 
     
 }
-
-
-
+ 
 ### Post init stuff by Nelson 
 ### add the new IP to my local hosts as mywazi. Use copy to move the new IP to the top
 output "Info" {
@@ -94,11 +93,10 @@ output "Info" {
     From your cloud UI, use the VSI action/serial term to view the MCS and IPL state.
     Run "terraform show" to redisplay these instructions.
 
-    A special DEMO script (postinit) has been created to initialize a dev runtime on the new instance.
-    
-    The App Config script can be run from you terminal using this command"  
+    A special DEMO script (postinit) has been created to initialize a dev runtime on the new instance.    
+    Cut and paste the command below to run the scrip:
        call App-Iac/postinit  ${ibm_is_floating_ip.fip1.address}  
 
-    The README.md file has more details.        
+    See the README.md for more details.        
   EOT
   }     
