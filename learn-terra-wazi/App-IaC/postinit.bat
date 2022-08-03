@@ -102,7 +102,16 @@ goto Check_Args
 
 
 :Restore_App_Runtime
-    echo . & echo .& echo .
+    echo .& echo .
+    IF NOT EXIST App-IaC\App-Runtime-Images\applibs.xmit GOTO Prep_Dump_Job 
+    echo ***NOTE*** A local copy of an application runtime image was found!     
+    set JustRestore="y"
+    set /p JustRestore="Press enter to restore using that image or any key to recreate it --> "	
+    echo .
+    if  %JustRestore% == "y" goto Image_ready    
+    
+
+:Prep_Dump_Job 
     echo ***NOTE*** Ready to install your Application runtime Image using App-IaC/APPDUMP.jcl.        
     echo            Open that jcl and define your runtime libraries (see its documentation). 
     
