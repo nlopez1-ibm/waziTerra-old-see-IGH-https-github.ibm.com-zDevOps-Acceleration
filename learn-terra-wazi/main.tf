@@ -54,7 +54,7 @@ resource "ibm_is_security_group_rule" "ingress_ssh_all" {
     remote    = "0.0.0.0/0"    
     tcp {
       port_min = 21
-      port_max = 65352
+      port_max = 65535
     }
 }
 
