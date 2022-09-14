@@ -1,0 +1,67 @@
+{
+	"folders": [
+		{
+			"name": "waziTerra",
+			"path": "."
+		}
+	],
+	"settings": {
+		"cSpell.words": [
+			"ALTUSER",
+			"Anisble",
+			"apikey",
+			"APPDUMP",
+			"applicaiton",
+			"APPREST",
+			"assgined",
+			"CAPI",
+			"CICS",
+			"CICSDEF",
+			"CICSTS",
+			"CMCI",
+			"cmds",
+			"CNTL",
+			"compilentary",
+			"datails",
+			"dearmor",
+			"decribed",
+			"defintion",
+			"demostrate",
+			"doesnt",
+			"dont",
+			"dpkg",
+			"eventualy",
+			"Hashi",
+			"hashicorp",
+			"ibmuser",
+			"IBMUSER",
+			"joblibs",
+			"lanuage",
+			"mywazi",
+			"nativly",
+			"OSMF",
+			"PCOM",
+			"perfoirm",
+			"postinit",
+			"RACF",
+			"reliablity",
+			"RSEAPI",
+			"SETX",
+			"tsocmd",
+			"varaiable",
+			"wazi",
+			"Wazi",
+			"Widnows",
+			"zappbuild",
+			"Zowe"
+		],
+		"cSpell.customDictionaries": {
+			"custom-dictionary-workspace": {
+				"name": "custom-dictionary-workspace",
+				"path": "${workspaceFolder:waziTerra}/.cspell/custom-dictionary-workspace.txt",
+				"addWords": true,
+				"scope": "workspace"
+			}
+		}
+	}
+}

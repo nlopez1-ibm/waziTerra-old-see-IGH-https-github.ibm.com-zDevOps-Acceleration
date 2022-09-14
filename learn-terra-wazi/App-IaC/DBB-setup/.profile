@@ -18,4 +18,8 @@ export _CEE_RUNOPTS="FILETAG(AUTOCVT,AUTOTAG) POSIX(ON)"
 export ZOAU_HOME=/usr/lpp/IBM/zoautil
 export PATH=$PATH:/usr/lpp/IBM/zoautil/bin
 export LIBPATH=$LIBPATH:/usr/lpp/IBM/zoautil/lib
+
+# add the stock git path for the initial bootstrap clone 
+PATH=$PATH:/rsusr/ported/bin
+#
 echo "mywazi-v2:  .profile started DBBHOME=$DBB_HOME  ZAPPBUILD=$DBB_HOME/dbb-zappbuild "

@@ -19,17 +19,17 @@ This folder has sample *.tf terraform files.  They include getting started tips 
 
 >TIPS: 
    >+ A nice to have is the HCL vsCode extension https://marketplace.visualstudio.com/items?itemName=HashiCorp.terraformthe 
-   >+ In vsCode, open a terminal to run terraform commands by right clicking the project folder and selecting "Open in Integrated terminal". 
+   >+ In vsCode, open a CMD terminal to run terraform commands by right clicking the project folder and selecting "Open in Integrated terminal". 
 
 #### After the install
 Use an editor like vsCode and open main.tf script and review it.  From a DOS terminal, CD to this folder and run the terraform cmds:
-| cmd  | desc | 
-| --- | --- | 
-| `terraform init` | Required: Download all IBM Cloud provider plugins |
-| `terraform plan` | Optional: step to validate your script |
-| `terraform apply` | Required: Run  |
-| `terraform show` | Optional: Review an existing run  |
-| `terraform destroy` | Optional: Remove an instance |
+| cmd                 | desc                                              |
+| ------------------- | ------------------------------------------------- |
+| `terraform init`    | Required: Download all IBM Cloud provider plugins |
+| `terraform plan`    | Optional: step to validate your script            |
+| `terraform apply`   | Required: Run                                     |
+| `terraform show`    | Optional: Review an existing run                  |
+| `terraform destroy` | Optional: Remove an instance                      |
 
 
 For more on IBM's terraform plugin, scroll to the "VPC infrastructure" topic in https://registry.terraform.io/providers/IBM-Cloud/ibm/latest/docs
@@ -40,7 +40,7 @@ For more on IBM's terraform plugin, scroll to the "VPC infrastructure" topic in 
 ## The Folder - 'learn-terra-wazi'
 The main.tf script is derived from [IBM Sample terraform repo](https://cloud.ibm.com/docs/ibm-cloud-provider-for-terraform?topic=ibm-cloud-provider-for-terraform-sample_vpc_config) to create a zOS instance. You will need a pre-defined local ssh-key and an IBM Cloud account API key that has access to the WaaS image (Allow list). 
 
-In Windows, run the ssh-keygen cmd and [add your public key to your cloud acct](https://cloud.ibm.com/docs/ssh-keys?topic=ssh-keys-adding-an-ssh-key). Then [add your cloud API key](https://www.ibm.com/docs/en/app-connect/containers_cd?topic=servers-creating-cloud-api-key) as a local environment varaiable. In a windows terminal use `SETX IC_API_Key=<apikey>` (or add the key in a script - but thats not recommended)
+In Windows, run the `ssh-keygen -t rsa -b 4096 -C "user_ID"` cmd and [add your public key to your cloud acct](https://cloud.ibm.com/docs/vpc?topic=vpc-ssh-keys). Then [add your cloud API key](https://www.ibm.com/docs/en/app-connect/containers_cd?topic=servers-creating-cloud-api-key) as a local environment varaiable. In a windows terminal use `SETX IC_API_Key=<apikey>` (or add the key in a script - but thats not recommended)
 
 
 After that, review the main.tf and adjust the BASENAME local variable. Then open a terminal and run terraform init and apply.  

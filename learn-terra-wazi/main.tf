@@ -3,11 +3,12 @@
 # + bad port rules plus missing outboud rules 
 
 # locals and date blocks added here as per the sample 
-# Note: Change the basename to create your instance
+# Note: - Change the basename to create your instance
+#       - the ssh key varaible name must match the ssh key name added to your regions vpc
 locals {
     BASENAME    = "nelson-dbb-terra2"
     ZONE        = "br-sao-3"
-    SSH_Key     = "nelsons-pub-ssh-key" 
+    SSH_Key     = "nelson-ssh-key2" 
     image_name  = "ibm-zos-2-4-s390x-dev-test-wazi-1"
     group       = "wazi-demo-rg"  
 }
